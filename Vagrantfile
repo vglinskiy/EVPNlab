@@ -39,9 +39,12 @@ Vagrant.configure(2) do |config|
         vtepA.vm.network "private_network", auto_config: false, virtualbox__intnet: "vtepA_spine"
         vtepA.vm.provider :virtualbox do |vb|
                 vb.name = "vtepA"
+                vb.customize ['modifyvm',:id,'--macaddress1','0800276CEE0D']
                 vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc4','allow-all']
+                vb.customize ['modifyvm',:id,'--uart1','0x3F8','4']
+                vb.customize ['modifyvm',:id,'--uartmode1','server','/tmp/vtepa']
                 vb.customize "pre-boot", [
                         "storageattach", :id,
                         "--storagectl", "SATA",
@@ -62,16 +65,19 @@ Vagrant.configure(2) do |config|
         vtepB.vm.network "private_network", auto_config: false, virtualbox__intnet: "vtepB_spine"
         vtepB.vm.provider :virtualbox do |vb|
                 vb.name = "vtepB"
+                vb.customize ['modifyvm',:id,'--macaddress1','080027C48D62']
                 vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc4','allow-all']
+                vb.customize ['modifyvm',:id,'--uart1','0x3F8','4']
+                vb.customize ['modifyvm',:id,'--uartmode1','server','/tmp/vtepb']
                 vb.customize "pre-boot", [
                         "storageattach", :id,
                         "--storagectl", "SATA",
                         "--port", "1",
                         "--device", "0",
                         "--type", "dvddrive",
-                        "--medium", "./vtepB_config.iso",
+                        "--medium", "./vtepb_config.iso",
                 ]
         end
   end
@@ -81,13 +87,16 @@ Vagrant.configure(2) do |config|
         spine.vm.boot_timeout = 180
         spine.vm.synced_folder '.', '/vagrant', disabled: true
         spine.vm.network :forwarded_port, guest: 80, host: 8883, id: 'http'
-        spine.vm.network "private_network", ip: "192.168.1.2", auto_config: false, virtualbox__intnet: "hostA_spine"
-        spine.vm.network "private_network", auto_config: false, virtualbox__intnet: "hostB_spine"
+        spine.vm.network "private_network", ip: "192.168.1.2", auto_config: false, virtualbox__intnet: "vtepA_spine"
+        spine.vm.network "private_network", auto_config: false, virtualbox__intnet: "vtepB_spine"
         spine.vm.provider :virtualbox do |vb|
                 vb.name = "spine"
+                vb.customize ['modifyvm',:id,'--macaddress1','0800273CD2DE']
                 vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc4','allow-all']
+                vb.customize ['modifyvm',:id,'--uart1','0x3F8','4']
+                vb.customize ['modifyvm',:id,'--uartmode1','server','/tmp/spine']
                 vb.customize "pre-boot", [
                         "storageattach", :id,
                         "--storagectl", "SATA",
