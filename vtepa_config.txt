@@ -1,6 +1,6 @@
 
 !Command: show running-config
-!Time: Thu Oct  5 00:36:03 2017
+!Time: Thu Oct  5 03:06:17 2017
 
 version 7.0(3)I7(1)
 hostname vtepA
@@ -30,6 +30,7 @@ username vagrant password 5 $5$BXgwZT5K$HAC8299nP.cIEPOcvGCcBLs9.fLKH/n8uG3JLJpK
 username vagrant shelltype bash
 username vagrant sshkey ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key
 ip domain-lookup
+ip name-server 10.0.2.3 use-vrf management
 snmp-server user admin network-admin auth md5 0xbb785c32a1b11f4d7f4c406ce877163a priv 0xbb785c32a1b11f4d7f4c406ce877163a localizedkey
 snmp-server user vagrant network-admin auth md5 0x63e3dd98233d6524f458458e1692fb56 priv 0x63e3dd98233d6524f458458e1692fb56 localizedkey
 rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
@@ -39,11 +40,11 @@ rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
 rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO
 
 vlan 1,100
-
-vrf context management
-
 vlan 100
   vn-segment 99100
+
+vrf context management
+  ip route 0.0.0.0/0 10.0.2.2
 
 interface Vlan1
 
@@ -52,8 +53,7 @@ interface nve1
   overlay-encapsulation vxlan
   source-interface loopback0
   member vni 99100
-    ingress-replication protocol static
-      peer-ip 33.33.33.33
+    ingress-replication protocol bgp
 
 interface Ethernet1/1
   switchport access vlan 100
@@ -192,7 +192,7 @@ interface Ethernet1/64
 
 interface mgmt0
   vrf member management
-  ip address dhcp
+  ip address 10.0.2.15/24
 
 interface loopback0
   ip address 11.11.11.11/32
@@ -203,5 +203,13 @@ line vty
 boot nxos bootflash:/nxos.7.0.3.I7.1.bin 
 router ospf 99
   router-id 11.11.11.11
+router bgp 64999
+  router-id 11.11.11.11
+  address-family ipv4 unicast
+  address-family l2vpn evpn
+  neighbor 22.22.22.22
+    remote-as 64999
+    update-source loopback0
+    address-family l2vpn evpn
 
 

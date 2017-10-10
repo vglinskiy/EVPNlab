@@ -1,6 +1,6 @@
 
 !Command: show running-config
-!Time: Thu Oct  5 00:55:26 2017
+!Time: Thu Oct  5 03:05:59 2017
 
 version 7.0(3)I7(1)
 hostname vtepB
@@ -29,6 +29,7 @@ username vagrant password 5 $5$tyIAtc5E$j5PtXm8Zoy2wR.rmMPvSdBBYe1cQp1xOF7xoGFLL
 username vagrant shelltype bash
 username vagrant sshkey ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key
 ip domain-lookup
+ip name-server 10.0.2.3 use-vrf management
 snmp-server user admin auth md5 0xbb785c32a1b11f4d7f4c406ce877163a priv 0xbb785c32a1b11f4d7f4c406ce877163a localizedkey engineID 128:0:0:9:3:8:0:39:108:238:13
 snmp-server user vagrant auth md5 0x63e3dd98233d6524f458458e1692fb56 priv 0x63e3dd98233d6524f458458e1692fb56 localizedkey engineID 128:0:0:9:3:8:0:39:108:238:13
 rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
@@ -42,13 +43,13 @@ vlan 100
   vn-segment 99100
 
 vrf context management
+  ip route 0.0.0.0/0 10.0.2.2
 
 interface nve1
   no shutdown
   source-interface loopback0
   member vni 99100
-    ingress-replication protocol static
-      peer-ip 11.11.11.11
+    ingress-replication protocol bgp
 
 interface Ethernet1/1
   switchport access vlan 100
@@ -197,5 +198,12 @@ line vty
 boot nxos bootflash:/nxos.7.0.3.I7.1.bin 
 router ospf 99
   router-id 33.33.33.33
+router bgp 64999
+  router-id 33.33.33.33
+  address-family l2vpn evpn
+  neighbor 22.22.22.22
+    remote-as 64999
+    update-source loopback0
+    address-family l2vpn evpn
 
 
