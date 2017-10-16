@@ -1,6 +1,6 @@
 
 !Command: show running-config
-!Time: Thu Oct  5 03:07:05 2017
+!Time: Sat Oct 14 00:09:59 2017
 
 version 7.0(3)I7(1)
 hostname spine
@@ -30,6 +30,7 @@ username vagrant shelltype bash
 username vagrant sshkey ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key
 ip domain-lookup
 ip name-server 10.0.2.3 use-vrf management
+snmp-server user vagrant network-operator 
 snmp-server user admin auth md5 0xbb785c32a1b11f4d7f4c406ce877163a priv 0xbb785c32a1b11f4d7f4c406ce877163a localizedkey engineID 128:0:0:9:3:8:0:39:108:238:13
 snmp-server user vagrant auth md5 0x63e3dd98233d6524f458458e1692fb56 priv 0x63e3dd98233d6524f458458e1692fb56 localizedkey engineID 128:0:0:9:3:8:0:39:108:238:13
 rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
@@ -198,17 +199,20 @@ router ospf 99
   router-id 22.22.22.22
 router bgp 64999
   router-id 22.22.22.22
-  address-family ipv4 unicast
   address-family l2vpn evpn
   neighbor 11.11.11.11
     remote-as 64999
     update-source loopback0
     address-family l2vpn evpn
+      send-community
+      send-community extended
       route-reflector-client
   neighbor 33.33.33.33
     remote-as 64999
     update-source loopback0
     address-family l2vpn evpn
+      send-community
+      send-community extended
       route-reflector-client
 ip arp
 

@@ -11,6 +11,8 @@ Vagrant.configure(2) do |config|
 	hostA.vm.provision "shell", inline: <<-SHELL
           sudo ip addr add 192.168.100.100/24 dev enp0s8
           sudo ip link set enp0s8 up
+          sudo ip route add 192.168.200.0/24 via 192.168.100.1
+          sudo apt-get install traceroute
         SHELL
         hostA.vm.hostname = "hostA"
   end
@@ -23,8 +25,10 @@ Vagrant.configure(2) do |config|
 	hostB.vm.network :forwarded_port, guest: 22, host: 12202, id: 'ssh'
 	hostB.vm.network "private_network", virtualbox__intnet: "hostB_vtepB", auto_config: false
 	hostB.vm.provision "shell", inline: <<-SHELL
-          sudo ip addr add 192.168.100.200/24 dev enp0s8
+          sudo ip addr add 192.168.200.200/24 dev enp0s8
           sudo ip link set enp0s8 up
+          sudo ip route add 192.168.100.0/24 via 192.168.200.1
+          sudo apt-get install traceroute
         SHELL
         hostB.vm.hostname = "hostB"
   end
