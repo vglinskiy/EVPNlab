@@ -111,5 +111,30 @@ Vagrant.configure(2) do |config|
                 ]
         end
   end
+  config.vm.define "router1" do |router1|
+        router1.vm.box = "n9k"
+        router1.ssh.insert_key = false
+        router1.vm.boot_timeout = 180
+        router1.vm.synced_folder '.', '/vagrant', disabled: true
+        router1.vm.network :forwarded_port, guest: 80, host: 8884, id: 'http'
+        router1.vm.network "private_network", ip: "192.168.1.2", auto_config: false, virtualbox__intnet: "vtepA_router1"
+        router1.vm.provider :virtualbox do |vb|
+                vb.name = "router1"
+                vb.customize ['modifyvm',:id,'--macaddress1','080027C49A22']
+                vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
+                vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
+                vb.customize ['modifyvm',:id,'--nicpromisc4','allow-all']
+                vb.customize ['modifyvm',:id,'--uart1','0x3F8','4']
+                vb.customize ['modifyvm',:id,'--uartmode1','server','/tmp/router1']
+                vb.customize "pre-boot", [
+                        "storageattach", :id,
+                        "--storagectl", "SATA",
+                        "--port", "1",
+                        "--device", "0",
+                        "--type", "dvddrive",
+                        "--medium", "./router1_config.iso",
+                ]
+        end
+  end
 end
   
