@@ -5,7 +5,7 @@ then
  rm nxos_config.txt
 fi
 
-for device in vtepa vtepb spine
+for device in vtepa vtepb spine router1
 do
   if [ -f $device\_config.txt ]
   then
@@ -13,3 +13,4 @@ do
     mkisofs -o $device\_config.iso -l --iso-level 2 nxos_config.txt 
   fi
 done
+rm nxos_config.txt
