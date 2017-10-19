@@ -1,10 +1,10 @@
 
 !Command: show running-config
-!Time: Thu Oct 19 16:39:58 2017
+!Time: Thu Oct 19 16:38:55 2017
 
 version 7.0(3)I7(1)
-hostname spine
-vdc spine id 1
+hostname vtepC
+vdc vtepC id 1
   limit-resource vlan minimum 16 maximum 4094
   limit-resource vrf minimum 2 maximum 4096
   limit-resource port-channel minimum 0 maximum 511
@@ -19,49 +19,53 @@ feature scp-server
 nv overlay evpn
 feature ospf
 feature bgp
+feature interface-vlan
 feature vn-segment-vlan-based
 feature lldp
 feature nv overlay
 
 no password strength-check
 username admin password 5 $5$bFlOCeX2$Bgnf4kzZPWPkekMalE84W1uKRlG705WCn141FZLOCWC  role network-admin
-username vagrant password 5 $5$XuCQgqjX$stFOQ1YU.iTr2.FUnK9eLx8OeUtH4VE3xZArQSYG7Z3  role network-admin
+username vagrant password 5 $5$dHIXGMnF$0Ba6oFSmo/S3WCBmk99kJIpoixyn5grjdBqKl06N/./  role network-admin
 username vagrant role network-operator
 username vagrant shelltype bash
 username vagrant sshkey ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key
 ip domain-lookup
 ip name-server 10.0.2.3 use-vrf management
-snmp-server user vagrant network-operator 
-snmp-server user admin auth md5 0xbb785c32a1b11f4d7f4c406ce877163a priv 0xbb785c32a1b11f4d7f4c406ce877163a localizedkey engineID 128:0:0:9:3:8:0:39:108:238:13
-snmp-server user vagrant auth md5 0x63e3dd98233d6524f458458e1692fb56 priv 0x63e3dd98233d6524f458458e1692fb56 localizedkey engineID 128:0:0:9:3:8:0:39:108:238:13
+snmp-server user admin network-admin auth md5 0xbb785c32a1b11f4d7f4c406ce877163a priv 0xbb785c32a1b11f4d7f4c406ce877163a localizedkey
+snmp-server user vagrant network-operator auth md5 0x27d8608d8c86f78fcd3ffd48659ae1f6 priv 0x27d8608d8c86f78fcd3ffd48659ae1f6 localizedkey
+snmp-server user vagrant network-admin
 rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
 rmon event 2 log trap public description CRITICAL(2) owner PMON@CRITICAL
 rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
 rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
 rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO
 
-vlan 1
+vlan 1,100,200
+vlan 100
+  vn-segment 99100
+vlan 200
+  vn-segment 99200
 
 vrf context management
   ip route 0.0.0.0/0 10.0.2.2
 
-interface Ethernet1/1
-  no switchport
-  mtu 9216
-  ip address 100.100.100.1/31
-  ip ospf network point-to-point
-  ip router ospf 99 area 0.0.0.0
+interface Vlan1
+
+interface nve1
   no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+  member vni 99100
+    ingress-replication protocol bgp
+  member vni 99200
+    ingress-replication protocol bgp
+
+interface Ethernet1/1
+  switchport access vlan 200
+  spanning-tree port type edge
 
 interface Ethernet1/2
-  no switchport
-  mtu 9216
-  ip address 100.100.100.3/31
-  ip ospf network point-to-point
-  ip router ospf 99 area 0.0.0.0
-  no shutdown
-
-interface Ethernet1/3
   no switchport
   mtu 9216
   medium p2p
@@ -69,6 +73,8 @@ interface Ethernet1/3
   ip ospf network point-to-point
   ip router ospf 99 area 0.0.0.0
   no shutdown
+
+interface Ethernet1/3
 
 interface Ethernet1/4
 
@@ -197,38 +203,30 @@ interface mgmt0
   vrf member management
 
 interface loopback0
-  ip address 22.22.22.22/32
+  ip address 44.44.44.44/32
   ip ospf network point-to-point
   ip router ospf 99 area 0.0.0.0
 line console
 line vty
 boot nxos bootflash:/nxos.7.0.3.I7.1.bin 
 router ospf 99
-  router-id 22.22.22.22
+  router-id 44.44.44.44
 router bgp 64999
-  router-id 22.22.22.22
-  address-family l2vpn evpn
-  neighbor 11.11.11.11
+  router-id 44.44.44.44
+  neighbor 22.22.22.22
     remote-as 64999
     update-source loopback0
     address-family l2vpn evpn
       send-community
       send-community extended
-      route-reflector-client
-  neighbor 33.33.33.33
-    remote-as 64999
-    update-source loopback0
-    address-family l2vpn evpn
-      send-community
-      send-community extended
-      route-reflector-client
-  neighbor 44.44.44.44
-    remote-as 64999
-    update-source loopback0
-    address-family l2vpn evpn
-      send-community
-      send-community extended
-      route-reflector-client
-ip arp
+evpn
+  vni 99100 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+  vni 99200 l2
+    rd auto
+    route-target import auto
+    route-target export auto
 
 

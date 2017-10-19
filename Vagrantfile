@@ -43,6 +43,7 @@ Vagrant.configure(2) do |config|
         vtepA.vm.network "private_network", auto_config: false, virtualbox__intnet: "vtepA_spine"
         vtepA.vm.provider :virtualbox do |vb|
                 vb.name = "vtepA"
+                vb.customize ['modifyvm',:id,'--memory','6144']
                 vb.customize ['modifyvm',:id,'--macaddress1','0800276CEE0D']
                 vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
@@ -69,6 +70,7 @@ Vagrant.configure(2) do |config|
         vtepB.vm.network "private_network", auto_config: false, virtualbox__intnet: "vtepB_spine"
         vtepB.vm.provider :virtualbox do |vb|
                 vb.name = "vtepB"
+                vb.customize ['modifyvm',:id,'--memory','6144']
                 vb.customize ['modifyvm',:id,'--macaddress1','080027C48D62']
                 vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
@@ -85,6 +87,33 @@ Vagrant.configure(2) do |config|
                 ]
         end
   end
+  config.vm.define "vtepC" do |vtepC|
+        vtepC.vm.box = "n9k"
+        vtepC.ssh.insert_key = false
+        vtepC.vm.boot_timeout = 180
+        vtepC.vm.synced_folder '.', '/vagrant', disabled: true
+        vtepC.vm.network :forwarded_port, guest: 80, host: 8885, id: 'http'
+        vtepC.vm.network "private_network", ip: "192.168.1.9", auto_config: false, virtualbox__intnet: "hostC_vtepC"
+        vtepC.vm.network "private_network", auto_config: false, virtualbox__intnet: "vtepC_spine"
+        vtepC.vm.provider :virtualbox do |vb|
+                vb.name = "vtepC"
+                vb.customize ['modifyvm',:id,'--memory','6144']
+                vb.customize ['modifyvm',:id,'--macaddress1','0800276C34A1']
+                vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
+                vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
+                vb.customize ['modifyvm',:id,'--nicpromisc4','allow-all']
+                vb.customize ['modifyvm',:id,'--uart1','0x3F8','4']
+                vb.customize ['modifyvm',:id,'--uartmode1','server','/tmp/vtepc']
+                vb.customize "pre-boot", [
+                        "storageattach", :id,
+                        "--storagectl", "SATA",
+                        "--port", "1",
+                        "--device", "0",
+                        "--type", "dvddrive",
+                        "--medium", "./vtepc_config.iso",
+                ]
+        end
+  end
   config.vm.define "spine" do |spine|
         spine.vm.box = "n9k"
         spine.ssh.insert_key = false
@@ -93,8 +122,10 @@ Vagrant.configure(2) do |config|
         spine.vm.network :forwarded_port, guest: 80, host: 8883, id: 'http'
         spine.vm.network "private_network", ip: "192.168.1.2", auto_config: false, virtualbox__intnet: "vtepA_spine"
         spine.vm.network "private_network", auto_config: false, virtualbox__intnet: "vtepB_spine"
+        spine.vm.network "private_network", auto_config: false, virtualbox__intnet: "vtepC_spine"
         spine.vm.provider :virtualbox do |vb|
                 vb.name = "spine"
+                vb.customize ['modifyvm',:id,'--memory','8192']
                 vb.customize ['modifyvm',:id,'--macaddress1','0800273CD2DE']
                 vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
@@ -120,6 +151,7 @@ Vagrant.configure(2) do |config|
         router1.vm.network "private_network", ip: "192.168.1.2", auto_config: false, virtualbox__intnet: "vtepA_router1"
         router1.vm.provider :virtualbox do |vb|
                 vb.name = "router1"
+                vb.customize ['modifyvm',:id,'--memory','4096']
                 vb.customize ['modifyvm',:id,'--macaddress1','080027C49A22']
                 vb.customize ['modifyvm',:id,'--nicpromisc2','allow-all']
                 vb.customize ['modifyvm',:id,'--nicpromisc3','allow-all']
