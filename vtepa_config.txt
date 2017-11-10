@@ -1,6 +1,6 @@
 
 !Command: show running-config
-!Time: Sat Oct 14 00:09:33 2017
+!Time: Fri Nov 10 20:54:21 2017
 
 version 7.0(3)I7(1)
 hostname vtepA
@@ -39,16 +39,62 @@ rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
 rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
 rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO
 
-vlan 1,100,200
+fabric forwarding anycast-gateway-mac 0000.abcd.0011
+vlan 1,100,111,200,222
 vlan 100
   vn-segment 99100
+vlan 111
+  vn-segment 99111
 vlan 200
   vn-segment 99200
+vlan 222
+  vn-segment 99222
 
+route-map vxlan_vrf_ab permit 10
+  match tag 99100 99200 
+route-map vxlan_vrf_cd permit 10
+  match tag 99111 99222 
 vrf context management
   ip route 0.0.0.0/0 10.0.2.2
+vrf context vrf_ab
+  vni 9100200
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context vrf_cd
+  vni 9111222
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+
 
 interface Vlan1
+
+interface Vlan100
+  no shutdown
+  vrf member vrf_ab
+  ip address 192.168.100.1/24 tag 99100
+  fabric forwarding mode anycast-gateway
+
+interface Vlan111
+  no shutdown
+  vrf member vrf_cd
+  ip address 172.16.100.1/24 tag 99111
+  fabric forwarding mode anycast-gateway
+
+interface Vlan200
+  no shutdown
+  vrf member vrf_ab
+  ip address 192.168.200.1/24 tag 99200
+  fabric forwarding mode anycast-gateway
+
+interface Vlan222
+  no shutdown
+  vrf member vrf_cd
+  ip address 172.16.200.1/24 tag 99222
+  fabric forwarding mode anycast-gateway
 
 interface nve1
   no shutdown
@@ -57,14 +103,22 @@ interface nve1
   source-interface loopback0
   member vni 99100
     ingress-replication protocol bgp
+  member vni 99111
+    ingress-replication protocol bgp
   member vni 99200
     ingress-replication protocol bgp
+  member vni 99222
+    ingress-replication protocol bgp
+  member vni 9100200 associate-vrf
+  member vni 9111222 associate-vrf
 
 interface Ethernet1/1
+  description hostA
   switchport access vlan 100
   spanning-tree port type edge
 
 interface Ethernet1/2
+  description spine
   no switchport
   mtu 9216
   ip address 100.100.100.0/31
@@ -73,7 +127,8 @@ interface Ethernet1/2
   no shutdown
 
 interface Ethernet1/3
-  switchport mode trunk
+  description hostC
+  switchport access vlan 111
 
 interface Ethernet1/4
 
@@ -218,12 +273,28 @@ router bgp 64999
     address-family l2vpn evpn
       send-community
       send-community extended
+  vrf vrf_ab
+    address-family ipv4 unicast
+      advertise l2vpn evpn
+      redistribute direct route-map vxlan_vrf_ab
+  vrf vrf_cd
+    address-family ipv4 unicast
+      advertise l2vpn evpn
+      redistribute direct route-map vxlan_vrf_cd
 evpn
   vni 99100 l2
     rd auto
     route-target import auto
     route-target export auto
+  vni 99111 l2
+    rd auto
+    route-target import auto
+    route-target export auto
   vni 99200 l2
+    rd auto
+    route-target import auto
+    route-target export auto
+  vni 99222 l2
     rd auto
     route-target import auto
     route-target export auto

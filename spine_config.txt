@@ -1,6 +1,6 @@
 
 !Command: show running-config
-!Time: Thu Oct 19 16:39:58 2017
+!Time: Fri Nov 10 20:54:46 2017
 
 version 7.0(3)I7(1)
 hostname spine
@@ -207,7 +207,6 @@ router ospf 99
   router-id 22.22.22.22
 router bgp 64999
   router-id 22.22.22.22
-  address-family l2vpn evpn
   neighbor 11.11.11.11
     remote-as 64999
     update-source loopback0
@@ -215,6 +214,7 @@ router bgp 64999
       send-community
       send-community extended
       route-reflector-client
+      soft-reconfiguration inbound always
   neighbor 33.33.33.33
     remote-as 64999
     update-source loopback0
@@ -222,13 +222,7 @@ router bgp 64999
       send-community
       send-community extended
       route-reflector-client
-  neighbor 44.44.44.44
-    remote-as 64999
-    update-source loopback0
-    address-family l2vpn evpn
-      send-community
-      send-community extended
-      route-reflector-client
+      soft-reconfiguration inbound always
 ip arp
 
 
