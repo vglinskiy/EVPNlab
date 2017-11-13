@@ -1,5 +1,5 @@
-HostA mac address 0800.27f6.b814
-HostB mac address 0800.2724.fe29
+HostA mac address 0800.27f6.b814, IP 192.168.100.100/24
+HostB mac address 0800.2724.fe29, IP 192.168.200.200/24
 
 on spine
 spine# show bgp l2vpn evpn 0800.2724.fe29
