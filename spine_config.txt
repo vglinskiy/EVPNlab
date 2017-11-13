@@ -1,6 +1,6 @@
 
 !Command: show running-config
-!Time: Fri Nov 10 20:54:46 2017
+!Time: Sat Nov 11 03:57:18 2017
 
 version 7.0(3)I7(1)
 hostname spine
@@ -46,6 +46,7 @@ vrf context management
   ip route 0.0.0.0/0 10.0.2.2
 
 interface Ethernet1/1
+  description vtepA
   no switchport
   mtu 9216
   ip address 100.100.100.1/31
@@ -54,6 +55,7 @@ interface Ethernet1/1
   no shutdown
 
 interface Ethernet1/2
+  description vtepB
   no switchport
   mtu 9216
   ip address 100.100.100.3/31
@@ -62,13 +64,7 @@ interface Ethernet1/2
   no shutdown
 
 interface Ethernet1/3
-  no switchport
-  mtu 9216
-  medium p2p
-  ip unnumbered loopback0
-  ip ospf network point-to-point
-  ip router ospf 99 area 0.0.0.0
-  no shutdown
+  shutdown
 
 interface Ethernet1/4
 
