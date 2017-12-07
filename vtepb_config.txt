@@ -1,6 +1,6 @@
 
 !Command: show running-config
-!Time: Sat Nov 11 03:57:00 2017
+!Time: Thu Dec  7 00:58:27 2017
 
 version 7.0(3)I7(1)
 hostname vtepB
@@ -139,6 +139,23 @@ interface Ethernet1/3
   spanning-tree port type edge
 
 interface Ethernet1/4
+  no switchport
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/4.102
+  mtu 9216
+  encapsulation dot1q 1020
+  vrf member vrf_ab
+  ip address 100.100.102.0/31
+  no shutdown
+
+interface Ethernet1/4.112
+  mtu 9216
+  encapsulation dot1q 1120
+  vrf member vrf_cd
+  ip address 100.100.112.0/31
+  no shutdown
 
 interface Ethernet1/5
 
@@ -275,6 +292,8 @@ router ospf 99
   router-id 33.33.33.33
 router bgp 64999
   router-id 33.33.33.33
+  address-family vpnv4 unicast
+  address-family l2vpn evpn
   neighbor 22.22.22.22
     remote-as 64999
     update-source loopback0
@@ -283,13 +302,27 @@ router bgp 64999
       send-community extended
       soft-reconfiguration inbound always
   vrf vrf_ab
+    log-neighbor-changes
     address-family ipv4 unicast
       advertise l2vpn evpn
       redistribute direct route-map vxlan_vrf_ab
+    neighbor 100.100.102.1
+      remote-as 65111
+      update-source Ethernet1/4.102
+      address-family ipv4 unicast
+        send-community
+        send-community extended
   vrf vrf_cd
+    log-neighbor-changes
     address-family ipv4 unicast
       advertise l2vpn evpn
       redistribute direct route-map vxlan_vrf_cd
+    neighbor 100.100.112.1
+      remote-as 65111
+      update-source Ethernet1/4.112
+      address-family ipv4 unicast
+        send-community
+        send-community extended
 evpn
   vni 99100 l2
     rd auto

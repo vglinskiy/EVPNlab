@@ -1,0 +1,246 @@
+
+!Command: show running-config
+!Time: Thu Dec  7 00:54:25 2017
+
+version 7.0(3)I7(1)
+hostname edge
+vdc edge id 1
+  limit-resource vlan minimum 16 maximum 4094
+  limit-resource vrf minimum 2 maximum 4096
+  limit-resource port-channel minimum 0 maximum 511
+  limit-resource u4route-mem minimum 248 maximum 248
+  limit-resource u6route-mem minimum 96 maximum 96
+  limit-resource m4route-mem minimum 58 maximum 58
+  limit-resource m6route-mem minimum 8 maximum 8
+
+feature nxapi
+feature bash-shell
+feature scp-server
+feature ospf
+feature bgp
+feature lldp
+
+no password strength-check
+username admin password 5 $5$bFlOCeX2$Bgnf4kzZPWPkekMalE84W1uKRlG705WCn141FZLOCWC  role network-admin
+username vagrant password 5 $5$XuCQgqjX$stFOQ1YU.iTr2.FUnK9eLx8OeUtH4VE3xZArQSYG7Z3  role network-admin
+username vagrant role network-operator
+username vagrant shelltype bash
+username vagrant sshkey ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key
+ip domain-lookup
+ip name-server 10.0.2.3 use-vrf management
+snmp-server user vagrant network-operator 
+snmp-server user admin auth md5 0xbb785c32a1b11f4d7f4c406ce877163a priv 0xbb785c32a1b11f4d7f4c406ce877163a localizedkey engineID 128:0:0:9:3:8:0:39:108:238:13
+snmp-server user vagrant auth md5 0x63e3dd98233d6524f458458e1692fb56 priv 0x63e3dd98233d6524f458458e1692fb56 localizedkey engineID 128:0:0:9:3:8:0:39:108:238:13
+rmon event 1 log trap public description FATAL(1) owner PMON@FATAL
+rmon event 2 log trap public description CRITICAL(2) owner PMON@CRITICAL
+rmon event 3 log trap public description ERROR(3) owner PMON@ERROR
+rmon event 4 log trap public description WARNING(4) owner PMON@WARNING
+rmon event 5 log trap public description INFORMATION(5) owner PMON@INFO
+
+vlan 1
+
+vrf context management
+  ip route 0.0.0.0/0 10.0.2.2
+vrf context outside
+  rd 44.44.44.44:1000
+  address-family ipv4 unicast
+    route-target import 65111:1020
+    route-target import 65111:1120
+    route-target export 65111:1000
+vrf context vrf_ab
+  rd 44.44.44.44:1020
+  address-family ipv4 unicast
+    route-target import 65111:1000
+    route-target export 65111:1020
+vrf context vrf_cd
+  rd 44.44.44.44:1120
+  address-family ipv4 unicast
+    route-target import 65111:1000
+    route-target export 65111:1120
+
+interface Ethernet1/1
+  no switchport
+  mtu 9216
+  no shutdown
+
+interface Ethernet1/1.102
+  mtu 9216
+  encapsulation dot1q 1020
+  vrf member vrf_ab
+  ip address 100.100.102.1/31
+  no shutdown
+
+interface Ethernet1/1.112
+  mtu 9216
+  encapsulation dot1q 1120
+  vrf member vrf_cd
+  ip address 100.100.112.1/31
+  no shutdown
+
+interface Ethernet1/2
+  description outside
+  no switchport
+  mtu 9216
+  vrf member outside
+  ip address 100.100.0.1/24
+  no shutdown
+
+interface Ethernet1/3
+
+interface Ethernet1/4
+
+interface Ethernet1/5
+
+interface Ethernet1/6
+
+interface Ethernet1/7
+
+interface Ethernet1/8
+
+interface Ethernet1/9
+
+interface Ethernet1/10
+
+interface Ethernet1/11
+
+interface Ethernet1/12
+
+interface Ethernet1/13
+
+interface Ethernet1/14
+
+interface Ethernet1/15
+
+interface Ethernet1/16
+
+interface Ethernet1/17
+
+interface Ethernet1/18
+
+interface Ethernet1/19
+
+interface Ethernet1/20
+
+interface Ethernet1/21
+
+interface Ethernet1/22
+
+interface Ethernet1/23
+
+interface Ethernet1/24
+
+interface Ethernet1/25
+
+interface Ethernet1/26
+
+interface Ethernet1/27
+
+interface Ethernet1/28
+
+interface Ethernet1/29
+
+interface Ethernet1/30
+
+interface Ethernet1/31
+
+interface Ethernet1/32
+
+interface Ethernet1/33
+
+interface Ethernet1/34
+
+interface Ethernet1/35
+
+interface Ethernet1/36
+
+interface Ethernet1/37
+
+interface Ethernet1/38
+
+interface Ethernet1/39
+
+interface Ethernet1/40
+
+interface Ethernet1/41
+
+interface Ethernet1/42
+
+interface Ethernet1/43
+
+interface Ethernet1/44
+
+interface Ethernet1/45
+
+interface Ethernet1/46
+
+interface Ethernet1/47
+
+interface Ethernet1/48
+
+interface Ethernet1/49
+
+interface Ethernet1/50
+
+interface Ethernet1/51
+
+interface Ethernet1/52
+
+interface Ethernet1/53
+
+interface Ethernet1/54
+
+interface Ethernet1/55
+
+interface Ethernet1/56
+
+interface Ethernet1/57
+
+interface Ethernet1/58
+
+interface Ethernet1/59
+
+interface Ethernet1/60
+
+interface Ethernet1/61
+
+interface Ethernet1/62
+
+interface Ethernet1/63
+
+interface Ethernet1/64
+
+interface mgmt0
+  ip address dhcp
+  vrf member management
+
+interface loopback0
+  ip address 44.44.44.44/32
+line console
+line vty
+boot nxos bootflash:/nxos.7.0.3.I7.1.bin 
+router bgp 65111
+  router-id 44.44.44.44
+  address-family vpnv4 unicast
+  vrf outside
+    address-family ipv4 unicast
+      network 100.100.0.0/24
+  vrf vrf_ab
+    address-family ipv4 unicast
+      network 100.100.0.0/24
+      network 100.100.102.0/31
+    neighbor 100.100.102.0
+      remote-as 64999
+      log-neighbor-changes
+      update-source Ethernet1/1.102
+      address-family ipv4 unicast
+        default-originate
+  vrf vrf_cd
+    neighbor 100.100.112.0
+      remote-as 64999
+      log-neighbor-changes
+      update-source Ethernet1/1.112
+      address-family ipv4 unicast
+        default-originate
+ip arp
+
+
