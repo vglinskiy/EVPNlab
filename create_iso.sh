@@ -5,7 +5,7 @@ then
  rm nxos_config.txt
 fi
 
-for device in vtepa vtepb spine router1 router2
+for device in vtepa vtepb spine edge
 do
   if [ -f $device\_config.txt ]
   then
